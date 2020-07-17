@@ -20,11 +20,6 @@ class CreateTransactionService {
     type,
     category,
   }: Request): Promise<Transaction> {
-    // check if that category exists
-    // exists:
-    //  get it's id and store with this transaction
-    // dont exists:
-    //  create new category and store into this transaction with the returned id
     const categoriesRepository = getRepository(Category);
     const transactionsRepository = getCustomRepository(TransactionsRepository);
 
@@ -33,7 +28,7 @@ class CreateTransactionService {
     if (type === 'outcome' && value > balance.total) {
       throw new AppError(
         'Insuficient balance available for this transaction',
-        403,
+        400,
       );
     }
 
@@ -41,7 +36,6 @@ class CreateTransactionService {
       title: category,
     });
 
-    // No category with that title was found
     if (!checkCategoryExistence) {
       const newCategory = categoriesRepository.create({ title: category });
 
@@ -51,7 +45,7 @@ class CreateTransactionService {
         title,
         type,
         value,
-        categoryId: newCategory.id,
+        category: newCategory,
       });
 
       await transactionsRepository.save(transaction);
@@ -63,7 +57,7 @@ class CreateTransactionService {
       title,
       type,
       value,
-      categoryId: checkCategoryExistence.id,
+      category: checkCategoryExistence,
     });
 
     await transactionsRepository.save(transaction);
