@@ -27,6 +27,7 @@ class Transaction {
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 
+  @Column()
   categoryId: string;
 
   @CreateDateColumn()
